@@ -1,16 +1,14 @@
 import { useState, useEffect, useRef } from "react";
-// Rasmlar (assets papkasida shu nomlarda saqlanganiga ishonch hosil qiling)
+// Rasmlar va video importi
 import heroBg from "./assets/1.jpg";
 import project1 from "./assets/2.jpg";
 import project2 from "./assets/3.jpg";
 import project3 from "./assets/4.jpg";
 import project4 from "./assets/5.jpg";
 import project5 from "./assets/6.jpg";
-import project6 from "./assets/7.jpg";
+import project6 from "./assets/7.mp4"; // Shu joyi videoga o'zgardi
 
 // 1-QOIDANI BUZMASLIK UCHUN TIPLAR (TYPES):
-// TypeScript'ga "Particle" (zarracha) qanday ma'lumotlardan iborat bo'lishini tushuntiramiz.
-// Busiz TypeScript "particles" massivini nima ekanligini bilmaydi va xato beradi.
 type Particle = {
   x: number;
   y: number;
@@ -21,14 +19,14 @@ type Particle = {
   life: number;
 };
 
-// Rasmlardagi vizuallarga moslashtirilgan real ma'lumotlar
+// Rasmlar va video turini farqlash uchun "type" xususiyati qo'shildi
 const PROJECTS_DATA = [
-  { img: project1, title: "Viskoz Suyuqlik va Muz", category: "FLIP Simulation", desc: "Houdini viskosit (viscosity) xususiyati yordamida yaratilgan yopishqoq suyuqlik va muzlash effekti." },
-  { img: project2, title: "Procedural O'rgimchak Rig", category: "KineFX / Animatsiya", desc: "KineFX va VEX orqali o'rgimchak harakatlarini protsessual avtomatlashtirish tizimi." },
-  { img: project3, title: "Keng Ko'lamli Chang & Tutun", category: "Pyro FX", desc: "Portlash va yer yuzasidagi chang to'lqinlarini Pyro solver yordamida volumetrik simulyatsiya qilish." },
-  { img: project4, title: "Procedural Wireframe Avto", category: "VEX / SOPs", desc: "VEX dasturlash tili orqali avtomobil modelini murakkab chiziqli (wireframe) to'rga aylantirish." },
-  { img: project5, title: "Qishki Tabiat Generatsiyasi", category: "Environment FX", desc: "Protsessual tarzda yaratilgan daraxtlar va ularning shoxlaridagi qor qoplamini shakllantirish." },
-  { img: project6, title: "Yumshoq Jism (Soft Body)", category: "Vellum FX", desc: "Vellum solver orqali obyektlarning egiluvchanlik va elastik deformatsiya simulyatsiyasi." },
+  { img: project1, type: "image", title: "Viskoz Suyuqlik va Muz", category: "FLIP Simulation", desc: "Houdini viskosit (viscosity) xususiyati yordamida yaratilgan yopishqoq suyuqlik va muzlash effekti." },
+  { img: project2, type: "image", title: "Procedural O'rgimchak Rig", category: "KineFX / Animatsiya", desc: "KineFX va VEX orqali o'rgimchak harakatlarini protsessual avtomatlashtirish tizimi." },
+  { img: project3, type: "image", title: "Keng Ko'lamli Chang & Tutun", category: "Pyro FX", desc: "Portlash va yer yuzasidagi chang to'lqinlarini Pyro solver yordamida volumetrik simulyatsiya qilish." },
+  { img: project4, type: "image", title: "Procedural Wireframe Avto", category: "VEX / SOPs", desc: "VEX dasturlash tili orqali avtomobil modelini murakkab chiziqli (wireframe) to'rga aylantirish." },
+  { img: project5, type: "image", title: "Qishki Tabiat Generatsiyasi", category: "Environment FX", desc: "Protsessual tarzda yaratilgan daraxtlar va ularning shoxlaridagi qor qoplamini shakllantirish." },
+  { img: project6, type: "video", title: "Yumshoq Jism (Soft Body)", category: "Vellum FX", desc: "Vellum solver orqali obyektlarning egiluvchanlik va elastik deformatsiya simulyatsiyasi." },
 ];
 
 const SKILLS_DATA = [
@@ -43,29 +41,25 @@ const App = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeFilter, setActiveFilter] = useState("Barchasi");
   
-  // 2-TUZATISH: useRef turini HTMLCanvasElement deb ko'rsatish.
-  // Bu orqali TypeScript "canvasRef" bu aniq Canvas elementi ekanligini tushunadi (va getContext xatosini bermaydi).
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  // Scroll hodisasi (Navbar foni uchun)
+  // Scroll hodisasi
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Mishka harakatiga mos "Rangli Tutun" (Canvas Particles) effekti
+  // Canvas Particles effekti
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return; // Agar canvas hali yuklanmagan bo'lsa, kodni to'xtatish.
+    if (!canvas) return;
     
     const ctx = canvas.getContext("2d");
-    if (!ctx) return; // Agar 2D kontekst topilmasa, to'xtatish.
+    if (!ctx) return;
 
-    // 3-TUZATISH: Massiv turini yuqorida yaratgan Particle turiga moslash.
     let particles: Particle[] = [];
     
-    // Ekranga moslashish funksiyasi
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -73,7 +67,6 @@ const App = () => {
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
-    // 4-TUZATISH: 'e' (event) nima ekanligini TypeScript'ga aytish (MouseEvent turi).
     const handleMouseMove = (e: MouseEvent) => {
       for (let i = 0; i < 4; i++) {
         particles.push({
@@ -90,7 +83,6 @@ const App = () => {
 
     window.addEventListener("mousemove", handleMouseMove);
 
-    // Animatsiya tsikli
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       particles.forEach((p, index) => {
@@ -103,7 +95,6 @@ const App = () => {
         p.radius += 0.5; 
         p.life -= 0.015; 
         
-        // Zarracha umri tugaganda, uni massivdan olib tashlaymiz
         if (p.life <= 0) {
           particles.splice(index, 1);
         }
@@ -112,14 +103,12 @@ const App = () => {
     };
     animate();
 
-    // Komponent o'chganda (dastur yopilganda) xotirani tozalash
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("resize", resizeCanvas);
     };
-  }, []); // [] - bu useEffect faqat sahifa birinchi marta yuklanganda ishlashini bildiradi.
+  }, []);
 
-  // Loyihalarni toifalarga ajratish mantig'i
   const categories = ["Barchasi", ...new Set(PROJECTS_DATA.map((p) => p.category))];
   const filteredProjects = activeFilter === "Barchasi" 
     ? PROJECTS_DATA 
@@ -136,7 +125,6 @@ const App = () => {
       overflowX: "hidden"
     }}>
       
-      {/* Tutun animatsiyasi uchun Canvas (Orqa fonga qotirilgan) */}
       <canvas 
         ref={canvasRef} 
         style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0, opacity: 0.6 }} 
@@ -224,9 +212,23 @@ const App = () => {
               onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 10px 30px rgba(0,0,0,0.3)"; }}
               >
                 <div style={{ height: "250px", overflow: "hidden", position: "relative" }}>
-                  <img src={project.img} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s" }} 
-                       onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.08)"}
-                       onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}/>
+                  {/* Turiga qarab Rasm yoki Video render qilish */}
+                  {project.type === "video" ? (
+                    <video 
+                      src={project.img} 
+                      autoPlay loop muted playsInline
+                      style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s" }} 
+                      onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.08)"}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+                    />
+                  ) : (
+                    <img 
+                      src={project.img} 
+                      style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s" }} 
+                      onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.08)"}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+                    />
+                  )}
                 </div>
                 <div style={{ padding: "1.8rem" }}>
                   <span style={{ color: "#60a5fa", fontSize: "0.8rem", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase" }}>{project.category}</span>
